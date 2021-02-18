@@ -1,0 +1,3 @@
+include ':parcellib'
+include ':app'
+rootProject.name = "Parcel"
