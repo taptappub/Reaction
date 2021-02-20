@@ -1,4 +1,4 @@
-package com.taptap.parcel
+package taptap.parcel
 
 sealed class Parcel<out T> {
     data class Success<out T>(val data: T) : Parcel<T>()
