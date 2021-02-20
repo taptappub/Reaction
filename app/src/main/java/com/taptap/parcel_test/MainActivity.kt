@@ -2,7 +2,7 @@ package com.taptap.parcel_test
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import taptap.parcel.Parcel
+import taptap.pub.Parcel
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
