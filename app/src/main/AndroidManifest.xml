@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Parcel">
-        <activity android:name="com.taptap.parcel_test.MainActivity">
+        <activity android:name="com.taptap.parcel_test.taptap.parcel_test.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
