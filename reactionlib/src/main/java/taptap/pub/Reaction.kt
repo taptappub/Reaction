@@ -2,7 +2,7 @@ package taptap.pub
 
 sealed class Reaction<out T> {
     data class Success<out T>(val data: T) : Reaction<T>()
-    data class Error(val exception: Exception) : Reaction<Nothing>()
+    data class Error(val exception: Throwable) : Reaction<Nothing>()
 
     companion object {
         inline fun <T> of(f: () -> T): Reaction<T> = try {
@@ -18,12 +18,17 @@ sealed class Reaction<out T> {
     }
 }
 
-inline fun <T> Reaction<T>.takeOrReturn(f: (Exception) -> Unit): T = when (this) {
+inline fun <T> Reaction<T>.takeOrReturn(f: (Throwable) -> Unit): T = when (this) {
     is Reaction.Success -> this.data
     is Reaction.Error -> {
         f(this.exception)
         throw IllegalStateException("You must write 'return' in the error lambda")
     }
+}
+
+inline fun <T> Reaction<T>.takeOrDefault(default: () -> T): T = when (this) {
+    is Reaction.Success -> this.data
+    is Reaction.Error -> default()
 }
 
 inline fun <T, R> Reaction<T>.flatMap(f: (T) -> Reaction<R>) = try {
@@ -44,7 +49,7 @@ inline fun <R, T> Reaction<T>.map(f: (T) -> R) = try {
     Reaction.Error(e)
 }
 
-inline fun <T> Reaction<T>.errorMap(f: (Exception) -> Exception) = try {
+inline fun <T> Reaction<T>.errorMap(f: (Throwable) -> Throwable) = try {
     when (this) {
         is Reaction.Success -> this
         is Reaction.Error -> Reaction.Error(f(this.exception))
@@ -53,7 +58,16 @@ inline fun <T> Reaction<T>.errorMap(f: (Exception) -> Exception) = try {
     Reaction.Error(e)
 }
 
-inline fun <T> Reaction<T>.flatHandle(f: (T?, Exception?) -> Unit) {
+inline fun <T> Reaction<T>.recover(transform: (exception: Throwable) -> T): Reaction<T> = try {
+    when (this) {
+        is Reaction.Success -> this
+        is Reaction.Error -> Reaction.of { transform(this.exception) }
+    }
+} catch (e: Exception) {
+    Reaction.Error(e)
+}
+
+inline fun <T> Reaction<T>.flatHandle(f: (T?, Throwable?) -> Unit) {
     when (this) {
         is Reaction.Success -> f(this.data, null)
         is Reaction.Error -> f(null, this.exception)
@@ -64,14 +78,14 @@ inline fun <T> Reaction<T>.doOnComplete(f: () -> Unit) {
     f()
 }
 
-inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Exception) -> Unit) {
+inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Throwable) -> Unit) {
     when (this) {
         is Reaction.Success -> success(this.data)
         is Reaction.Error -> error(this.exception)
     }
 }
 
-inline fun <T, R> Reaction<T>.zip(success: (T) -> R, error: (Exception) -> R): R =
+inline fun <T, R> Reaction<T>.zip(success: (T) -> R, error: (Throwable) -> R): R =
     when (this) {
         is Reaction.Success -> success(this.data)
         is Reaction.Error -> error(this.exception)
@@ -89,7 +103,7 @@ inline fun <T> Reaction<T>.doOnSuccess(f: (T) -> Unit): Reaction<T> = try {
     Reaction.Error(e)
 }
 
-inline fun <T> Reaction<T>.doOnError(f: (Exception) -> Unit): Reaction<T> = try {
+inline fun <T> Reaction<T>.doOnError(f: (Throwable) -> Unit): Reaction<T> = try {
     when (this) {
         is Reaction.Success -> this
         is Reaction.Error -> {
@@ -101,7 +115,10 @@ inline fun <T> Reaction<T>.doOnError(f: (Exception) -> Unit): Reaction<T> = try 
     Reaction.Error(e)
 }
 
-inline fun <T> Reaction<T>.check(f: (T) -> Boolean, noinline lazyMessage: () -> String): Reaction<T> =
+inline fun <T> Reaction<T>.check(
+    f: (T) -> Boolean,
+    noinline lazyMessage: () -> String
+): Reaction<T> =
     try {
         when (this) {
             is Reaction.Success -> {
