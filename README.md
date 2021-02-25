@@ -24,7 +24,7 @@ dependencies {
 fun getData() {
     viewModelScope.launch(Dispatchers.IO) {
         repository.getData()
-            .map { "covert to another string" }
+            .map { "Convert to another string" }
             .doOnError { Log.d("LOG", "it is an error") }
             .zip(
                 success = {
