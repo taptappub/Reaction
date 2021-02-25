@@ -102,8 +102,8 @@ repository.getData()
 ```kotlin
 repository.getData(data)
     .handle(
-            success = { liveData.postValue(it) },
-            error = { Log.d("LOG", "Error. That's a shame") }
+          success = { liveData.postValue(it) },
+          error = { Log.d("LOG", "Error. That's a shame") }
     )
 ```
 - **flatHandle** - Handle the Reaction result with one action with success and error
