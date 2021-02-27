@@ -149,10 +149,10 @@ val data = repository.getData()
     }
 ```
 - **takeOrNull** - Unwrap and receive the success result data or receive *null* in error case
- * ```kotlin
- * val data = repository.getData()
- *     .takeOrNull()
- * ```
+```kotlin
+val data = repository.getData()
+    .takeOrNull()
+```
 # License
 
    Copyright 2021 Aleksey Potapov
