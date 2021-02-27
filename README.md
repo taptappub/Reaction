@@ -1,6 +1,6 @@
 # Reaction lib [![](https://jitpack.io/v/taptappub/Reaction.svg)](https://jitpack.io/#taptappub/Reaction)
 
-The wrapper on business logic response.
+A class that encapsulates a successful result with a value of type [T] or a failure result with an [Throwable] exception
 
 ## Add library to a project
 
@@ -19,6 +19,13 @@ dependencies {
 ```
 
 ## Samples
+
+```kotlin
+class MainRepository {
+    fun getData(): Reaction<String> = Reaction.on { "some calculating" }
+    fun getAnotherData(firstData: String): Reaction<String> = Reaction.on { "some another calculating by $firstData" }
+}
+```
 
 ```kotlin
 fun getData() {
@@ -59,9 +66,9 @@ fun getAnotherData() {
 ```
 
 ## List of methods
- - **of** - Construct a safe Reaction from statement 
+ - **on** - Construct a safe Reaction from statement 
 ```kotlin
-Reaction.of { "something" }
+Reaction.on { "something" }
 ```
  - **map** - Transform the success result by applying a function to it
 ```kotlin
@@ -141,6 +148,11 @@ val data = repository.getData()
         "default data"
     }
 ```
+- **takeOrNull** - Unwrap and receive the success result data or receive *null* in error case
+ * ```kotlin
+ * val data = repository.getData()
+ *     .takeOrNull()
+ * ```
 # License
 
    Copyright 2021 Aleksey Potapov
