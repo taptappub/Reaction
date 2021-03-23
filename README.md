@@ -22,8 +22,8 @@ dependencies {
 
 ```kotlin
 class MainRepository {
-    fun getData(): Reaction<String> = Reaction.on { "some calculating" }
-    fun getAnotherData(firstData: String): Reaction<String> = Reaction.on { "some another calculating by $firstData" }
+    fun getData(): Reaction<String> = Reaction.on { "some calculations" }
+    fun getAnotherData(firstData: String): Reaction<String> = Reaction.on { "some another calculations based on $firstData" }
 }
 ```
 
@@ -149,10 +149,10 @@ val data = repository.getData()
     }
 ```
 - **takeOrNull** - Unwrap and receive the success result data or receive *null* in error case
- * ```kotlin
- * val data = repository.getData()
- *     .takeOrNull()
- * ```
+```kotlin
+val data = repository.getData()
+    .takeOrNull()
+```
 # License
 
    Copyright 2021 Aleksey Potapov
