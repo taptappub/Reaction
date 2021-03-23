@@ -4,8 +4,45 @@ package taptap.pub
  * A class that encapsulates a successful result with a value of type [T] or a failure result with an [Throwable] exception
  */
 sealed class Reaction<out T> {
-    data class Success<out T>(val data: T) : Reaction<T>()
-    data class Error(val exception: Throwable) : Reaction<Nothing>()
+
+    open operator fun component1(): T? = null
+    open operator fun component2(): Throwable? = null
+
+    abstract fun get(): T
+
+    class Success<out T : Any?>(val data: T) : Reaction<T>() {
+
+        override fun component1(): T = data
+
+        override fun get(): T = data
+
+        override fun toString() = "Success: $data"
+
+        override fun hashCode(): Int = data.hashCode()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is Success<*> && data == other.data
+        }
+    }
+
+    class Error(val exception: Throwable) : Reaction<Nothing>() {
+
+        override fun component2(): Throwable = exception
+
+        override fun get(): Nothing {
+            throw exception
+        }
+
+        override fun toString() = "Error: $exception"
+
+        override fun hashCode(): Int = exception.hashCode()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is Error && exception == other.exception
+        }
+    }
 
     companion object {
         /**
@@ -21,6 +58,12 @@ sealed class Reaction<out T> {
             } else {
                 Success(result)
             }
+        } catch (ex: Exception) {
+            Error(ex)
+        }
+
+        inline fun <T> tryReaction(f: () -> Reaction<T>): Reaction<T> = try {
+            f()
         } catch (ex: Exception) {
             Error(ex)
         }
@@ -100,6 +143,20 @@ inline fun <R, T> Reaction<T>.map(f: (T) -> R) = try {
     }
 } catch (e: Exception) {
     Reaction.Error(e)
+}
+
+/**
+ * Transform the result with success and error data by applying a function to it
+ * ```kotlin
+ * repository.getData()
+ *     .mapReaction { s, e -> "Convert to another string: $s + $e" }
+ * ```
+ */
+inline fun <R, T> Reaction<T>.mapReaction(f: (T?, Throwable?) -> R): R {
+    return when (this) {
+        is Reaction.Success -> f(this.data, null)
+        is Reaction.Error -> f(null, this.exception)
+    }
 }
 
 /**
@@ -252,4 +309,69 @@ inline fun <T> Reaction<T>.check(
     }
 } catch (e: Exception) {
     Reaction.Error(e)
+}
+
+sealed class Result<out V : Any?, out E : Exception> {
+
+    open operator fun component1(): V? = null
+    open operator fun component2(): E? = null
+
+    inline fun <X> fold(success: (V) -> X, failure: (E) -> X): X = when (this) {
+        is Success -> success(this.value)
+        is Failure -> failure(this.error)
+    }
+
+    abstract fun get(): V
+
+    class Success<out V : Any?>(val value: V) : Result<V, Nothing>() {
+        override fun component1(): V? = value
+
+        override fun get(): V = value
+
+        override fun toString() = "[Success: $value]"
+
+        override fun hashCode(): Int = value.hashCode()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is Success<*> && value == other.value
+        }
+    }
+
+    class Failure<out E : Exception>(val error: E) : Result<Nothing, E>() {
+        override fun component2(): E? = error
+
+        override fun get() = throw error
+
+        fun getException(): E = error
+
+        override fun toString() = "[Failure: $error]"
+
+        override fun hashCode(): Int = error.hashCode()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is Failure<*> && error == other.error
+        }
+    }
+
+    companion object {
+        // Factory methods
+        fun <E : Exception> error(ex: E) = Failure(ex)
+
+        fun <V : Any?> success(v: V) = Success(v)
+
+        inline fun <V : Any?> of(value: V?, fail: (() -> Exception) = { Exception() }): Result<V, Exception> =
+                value?.let { success(it) } ?: error(fail())
+
+        inline fun <V : Any?, reified E: Exception> of(noinline f: () -> V): Result<V, E> = try {
+            success(f())
+        } catch (ex: Exception) {
+            when (ex) {
+                is E -> error(ex)
+                else -> throw ex
+            }
+        }
+    }
+
 }
