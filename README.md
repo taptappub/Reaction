@@ -70,10 +70,19 @@ fun getAnotherData() {
 ```kotlin
 Reaction.on { "something" }
 ```
+ - **tryReaction** - Construct a safe Reaction from Reaction 
+```kotlin
+Reaction.tryReaction { Reaction.on { "something" } }
+```
  - **map** - Transform the success result by applying a function to it
 ```kotlin
 repository.getData()
     .map { "Convert to another string" }
+```
+- **map** - Transform the result with success and error data by applying a function to it
+```kotlin
+repository.getData()
+    .mapReaction { s, e -> "Convert to another string: $s + $e" }
 ```
 - **flatMap** - Transform the success result by applying a function to it to another Reaction
 ```kotlin
