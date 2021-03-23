@@ -1,12 +1,12 @@
 package taptap.pub
 
 /**
- * A class that encapsulates a successful result with a value of type [T] or a failure result with an [Throwable] exception
+ * A class that encapsulates a successful result with a value of type [T] or a failure result with an [Exception] exception
  */
 sealed class Reaction<out T> {
 
     open operator fun component1(): T? = null
-    open operator fun component2(): Throwable? = null
+    open operator fun component2(): Exception? = null
 
     abstract fun get(): T
 
@@ -26,9 +26,9 @@ sealed class Reaction<out T> {
         }
     }
 
-    class Error(val exception: Throwable) : Reaction<Nothing>() {
+    class Error(val exception: Exception) : Reaction<Nothing>() {
 
-        override fun component2(): Throwable = exception
+        override fun component2(): Exception = exception
 
         override fun get(): Nothing {
             throw exception
@@ -86,7 +86,7 @@ sealed class Reaction<out T> {
  *     }
 ```
  */
-inline fun <T> Reaction<T>.takeOrReturn(f: (Throwable) -> Unit): T = when (this) {
+inline fun <T> Reaction<T>.takeOrReturn(f: (Exception) -> Unit): T = when (this) {
     is Reaction.Success -> this.data
     is Reaction.Error -> {
         f(this.exception)
@@ -158,7 +158,7 @@ inline fun <R, T> Reaction<T>.map(f: (T) -> R) = try {
  *     .mapReaction { s, e -> "Convert to another string: $s + $e" }
  * ```
  */
-inline fun <R, T> Reaction<T>.mapReaction(f: (T?, Throwable?) -> R): R {
+inline fun <R, T> Reaction<T>.mapReaction(f: (T?, Exception?) -> R): R {
     return when (this) {
         is Reaction.Success -> f(this.data, null)
         is Reaction.Error -> f(null, this.exception)
@@ -172,7 +172,7 @@ inline fun <R, T> Reaction<T>.mapReaction(f: (T?, Throwable?) -> R): R {
  *     .errorMap { IllegalStateException("something went wrong") }
  * ```
  */
-inline fun <T> Reaction<T>.errorMap(f: (Throwable) -> Throwable) = try {
+inline fun <T> Reaction<T>.errorMap(f: (Exception) -> Exception) = try {
     when (this) {
         is Reaction.Success -> this
         is Reaction.Error -> Reaction.Error(f(this.exception))
@@ -188,7 +188,7 @@ inline fun <T> Reaction<T>.errorMap(f: (Throwable) -> Throwable) = try {
  *     .recover { "New reaction, much better then old" }
  * ```
  */
-inline fun <T> Reaction<T>.recover(transform: (exception: Throwable) -> T): Reaction<T> = try {
+inline fun <T> Reaction<T>.recover(transform: (exception: Exception) -> T): Reaction<T> = try {
     when (this) {
         is Reaction.Success -> this
         is Reaction.Error -> Reaction.on { transform(this.exception) }
@@ -206,7 +206,7 @@ inline fun <T> Reaction<T>.recover(transform: (exception: Throwable) -> T): Reac
  *     }
  * ```
  */
-inline fun <T> Reaction<T>.flatHandle(f: (T?, Throwable?) -> Unit) {
+inline fun <T> Reaction<T>.flatHandle(f: (T?, Exception?) -> Unit) {
     when (this) {
         is Reaction.Success -> f(this.data, null)
         is Reaction.Error -> f(null, this.exception)
@@ -234,7 +234,7 @@ inline fun <T> Reaction<T>.doOnComplete(f: () -> Unit) {
  *     )
 ```
  */
-inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Throwable) -> Unit) {
+inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Exception) -> Unit) {
     when (this) {
         is Reaction.Success -> success(this.data)
         is Reaction.Error -> error(this.exception)
@@ -251,7 +251,7 @@ inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Throwable) -> Un
  *     )
  * ```
  */
-inline fun <T, R> Reaction<T>.zip(success: (T) -> R, error: (Throwable) -> R): R =
+inline fun <T, R> Reaction<T>.zip(success: (T) -> R, error: (Exception) -> R): R =
     when (this) {
         is Reaction.Success -> success(this.data)
         is Reaction.Error -> error(this.exception)
@@ -283,7 +283,7 @@ inline fun <T> Reaction<T>.doOnSuccess(f: (T) -> Unit): Reaction<T> = try {
  *     .doOnError { Log.d("Error! Let's dance but sadly =(") }
  * ```
  */
-inline fun <T> Reaction<T>.doOnError(f: (Throwable) -> Unit): Reaction<T> = try {
+inline fun <T> Reaction<T>.doOnError(f: (Exception) -> Unit): Reaction<T> = try {
     when (this) {
         is Reaction.Success -> this
         is Reaction.Error -> {
