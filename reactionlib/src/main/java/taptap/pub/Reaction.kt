@@ -62,6 +62,12 @@ sealed class Reaction<out T> {
             Error(ex)
         }
 
+        /**
+         * Construct a safe Reaction from Reaction
+         * ```kotlin
+         * Reaction.tryReaction { Reaction.on { "something" } }
+        `* ```
+         */
         inline fun <T> tryReaction(f: () -> Reaction<T>): Reaction<T> = try {
             f()
         } catch (ex: Exception) {
