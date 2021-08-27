@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.taptap.parcel_test.R
 
 class MainFragment : Fragment() {
@@ -21,18 +22,14 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.getData()
         viewModel.getLiveData().observe(viewLifecycleOwner) { state ->
             when(state) {
-                is MainViewModel.State.Success -> TODO()
-                MainViewModel.State.Error -> TODO()
+                is MainViewModel.State.Success -> Toast.makeText(requireContext(), "Success", Toast.LENGTH_LONG).show()
+                MainViewModel.State.Error -> Toast.makeText(requireContext(), "Error", Toast.LENGTH_LONG).show()
             }
         }
     }

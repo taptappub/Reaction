@@ -1,5 +1,7 @@
 package taptap.pub
 
+import java.util.concurrent.CancellationException
+
 /**
  * A class that encapsulates a successful result with a value of type [T] or a failure result with an [Exception] exception
  */
@@ -59,6 +61,9 @@ sealed class Reaction<out T> {
                 Success(result)
             }
         } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
             Error(ex)
         }
 
@@ -131,8 +136,11 @@ inline fun <T, R> Reaction<T>.flatMap(f: (T) -> Reaction<R>) = try {
         is Reaction.Success -> f(this.data)
         is Reaction.Error -> this
     }
-} catch (e: Exception) {
-    Reaction.Error(e)
+} catch (ex: Exception) {
+    if (ex is CancellationException) {
+        throw ex
+    }
+    Reaction.Error(ex)
 }
 
 /**
@@ -147,8 +155,11 @@ inline fun <R, T> Reaction<T>.map(f: (T) -> R) = try {
         is Reaction.Success -> Reaction.Success(f(this.data))
         is Reaction.Error -> this
     }
-} catch (e: Exception) {
-    Reaction.Error(e)
+} catch (ex: Exception) {
+    if (ex is CancellationException) {
+        throw ex
+    }
+    Reaction.Error(ex)
 }
 
 /**
@@ -177,8 +188,11 @@ inline fun <T> Reaction<T>.errorMap(f: (Exception) -> Exception) = try {
         is Reaction.Success -> this
         is Reaction.Error -> Reaction.Error(f(this.exception))
     }
-} catch (e: Exception) {
-    Reaction.Error(e)
+} catch (ex: Exception) {
+    if (ex is CancellationException) {
+        throw ex
+    }
+    Reaction.Error(ex)
 }
 
 /**
@@ -194,6 +208,9 @@ inline fun <T> Reaction<T>.recover(transform: (exception: Exception) -> T): Reac
         is Reaction.Error -> Reaction.on { transform(this.exception) }
     }
 } catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
     Reaction.Error(e)
 }
 
@@ -273,6 +290,9 @@ inline fun <T> Reaction<T>.doOnSuccess(f: (T) -> Unit): Reaction<T> = try {
         is Reaction.Error -> this
     }
 } catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
     Reaction.Error(e)
 }
 
@@ -292,6 +312,9 @@ inline fun <T> Reaction<T>.doOnError(f: (Exception) -> Unit): Reaction<T> = try 
         }
     }
 } catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
     Reaction.Error(e)
 }
 
@@ -314,5 +337,8 @@ inline fun <T> Reaction<T>.check(
         is Reaction.Error -> this
     }
 } catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
     Reaction.Error(e)
 }
