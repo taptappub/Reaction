@@ -76,6 +76,9 @@ sealed class Reaction<out T> {
         inline fun <T> tryReaction(f: () -> Reaction<T>): Reaction<T> = try {
             f()
         } catch (ex: Exception) {
+            if (ex is CancellationException) {
+                throw ex
+            }
             Error(ex)
         }
     }
