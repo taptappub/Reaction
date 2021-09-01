@@ -84,6 +84,10 @@ sealed class Reaction<out T> {
     }
 }
 
+fun <T> T.toSuccessReaction() = Reaction.Success(this)
+
+fun <E : Exception> E.toErrorReaction() = Reaction.Error(this)
+
 /**
  * Unwrap and receive the success result data or do a function with *return*
  * ```kotlin
@@ -94,11 +98,10 @@ sealed class Reaction<out T> {
  *     }
 ```
  */
-inline fun <T> Reaction<T>.takeOrReturn(f: (Exception) -> Unit): T = when (this) {
+inline fun <T> Reaction<T>.takeOrReturn(f: (Exception) -> Nothing): T = when (this) {
     is Reaction.Success -> this.data
     is Reaction.Error -> {
         f(this.exception)
-        throw IllegalStateException("You must write 'return' in the error lambda")
     }
 }
 

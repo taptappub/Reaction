@@ -11,7 +11,8 @@ import android.widget.Toast
 import com.taptap.parcel_test.R
 import kotlinx.coroutines.*
 import taptap.pub.Reaction
-import java.lang.IllegalStateException
+import taptap.pub.toErrorReaction
+import taptap.pub.toSuccessReaction
 
 class MainFragment : Fragment() {
 
@@ -46,6 +47,7 @@ class MainFragment : Fragment() {
                 ).show()
             }
         }
+        //------------------------------------------------
         Log.d("TAGGGGG", "start")
         val r = CoroutineScope(Dispatchers.IO) + Job()
         r.launch {
@@ -55,13 +57,16 @@ class MainFragment : Fragment() {
                     throw IllegalStateException()
                 }
                 if (reaction is Reaction.Error) {
-                    Log.d("TAGGGGG", "catcha " +reaction.exception.toString())
+                    Log.d("TAGGGGG", "catcha " + reaction.exception.toString())
                 }
             } catch (e: Exception) {
                 Log.d("TAGGGGG", e.toString())
             }
         }
         Log.d("TAGGGGG", "end")
+        //------------------------------------------------
+        val reaction1 = IllegalStateException().toErrorReaction()
+        val reaction2 = "hello".toSuccessReaction()
     }
 
 }
