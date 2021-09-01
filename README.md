@@ -5,15 +5,14 @@ A class that encapsulates a successful result with a value of type [T] or a fail
 
 ```groovy
 allprojects {
-  repositories {
-    jcenter()
-    ...
-    maven { url 'https://jitpack.io' }
-  }
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 dependencies {
-    implementation "com.github.taptappub:Reaction:$version"
+    implementation "io.github.taptappub:reaction:$version"
 }
 ```
 
