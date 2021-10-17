@@ -1,20 +1,18 @@
-# Reaction lib [![](https://jitpack.io/v/taptappub/Reaction.svg)](https://jitpack.io/#taptappub/Reaction)
-
+# Reaction lib [![Maven Central](https://img.shields.io/maven-central/v/io.github.taptappub/reaction.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.taptappub%22%20AND%20a:%22reaction%22)
 A class that encapsulates a successful result with a value of type [T] or a failure result with an [Throwable] exception
 
 ## Add library to a project
 
 ```groovy
 allprojects {
-  repositories {
-    jcenter()
-    ...
-    maven { url 'https://jitpack.io' }
-  }
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 dependencies {
-    implementation "com.github.taptappub:Reaction:$version"
+    implementation "io.github.taptappub:reaction:$version"
 }
 ```
 
