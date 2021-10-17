@@ -1,4 +1,4 @@
-package taptap.parcel_test.ui.main
+package taptap.reaction.ui.main
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import taptap.pub.*
+import java.lang.Exception
 
 class MainViewModel : ViewModel() {
     private val repository = MainRepository()
@@ -33,7 +34,6 @@ class MainViewModel : ViewModel() {
     }
 
     fun getAnotherData() {
-        Result
         viewModelScope.launch(Dispatchers.IO) {
             val data = repository.getData()
                 .check { it.isNotEmpty() }
@@ -47,6 +47,17 @@ class MainViewModel : ViewModel() {
                         success = { liveData.postValue(State.Success(it)) },
                         error = { Log.d("LOG", "Error too") }
                 )
+        }
+    }
+
+    fun getData2() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val data = repository.getErrorData()
+                    .check("Check") { it != "Hi there" }
+            } catch (e: Exception) {
+                Log.d("LOG", "exception: $e")
+            }
         }
     }
 

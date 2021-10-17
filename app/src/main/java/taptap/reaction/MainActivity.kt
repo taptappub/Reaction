@@ -1,9 +1,9 @@
-package taptap.parcel_test
+package taptap.reaction
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.taptap.parcel_test.R
-import taptap.parcel_test.ui.main.MainFragment
+import taptap.reaction.ui.main.MainFragment
 
 class MainActivity : AppCompatActivity() {
 

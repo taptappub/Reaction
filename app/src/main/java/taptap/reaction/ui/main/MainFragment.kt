@@ -1,4 +1,4 @@
-package taptap.parcel_test.ui.main
+package taptap.reaction.ui.main
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
