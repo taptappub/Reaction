@@ -160,6 +160,18 @@ val data = repository.getData()
 val data = repository.getData()
     .takeOrNull()
 ```
+- **resumeWithReactionSuccess** - Coroutine Continuation for success callback
+```kotlin
+override fun success() {
+    continuation.resumeWithReactionSuccess { true }
+}
+```
+- **resumeWithReactionError** - Coroutine Continuation for failure callback
+```kotlin
+override fun failure(error: Throwable?) {
+    continuation.resumeWithReactionError { error }
+}
+```
 # License
 
    Copyright 2021 Aleksey Potapov
