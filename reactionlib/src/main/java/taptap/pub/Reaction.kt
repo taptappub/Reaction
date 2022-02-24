@@ -1,6 +1,7 @@
 package taptap.pub
 
 import java.util.concurrent.CancellationException
+import kotlin.coroutines.Continuation
 
 /**
  * A class that encapsulates a successful result with a value of type [T] or a failure result with an [Exception] exception
@@ -342,6 +343,46 @@ inline fun <T> Reaction<T>.check(
         }
         is Reaction.Error -> this
     }
+} catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
+    Reaction.Error(e)
+}
+
+//-------------------------Coroutine Continuation-------------------------
+
+/**
+ * Coroutine Continuation for success callback
+ * ```kotlin
+ * override fun success() {
+ *     continuation.resumeWithReactionSuccess { true }
+ * }
+ * ```
+ */
+inline fun <T> Continuation<Reaction<T>>.resumeWithReactionSuccess(
+    f: () -> T
+): Reaction<T> = try {
+    Reaction.on { f() }
+} catch (e: Exception) {
+    if (e is CancellationException) {
+        throw e
+    }
+    Reaction.Error(e)
+}
+
+/**
+ * Coroutine Continuation for failure callback
+ * ```kotlin
+ * override fun failure(error: Throwable?) {
+ *     continuation.resumeWithReactionError { error }
+ * }
+ * ```
+ */
+inline fun <T> Continuation<Reaction<T>>.resumeWithReactionError(
+    f: () -> Throwable
+): Reaction<T> = try {
+    Reaction.Error(f() as Exception)
 } catch (e: Exception) {
     if (e is CancellationException) {
         throw e
