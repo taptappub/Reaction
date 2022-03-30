@@ -31,7 +31,7 @@ fun getData() {
         repository.getData()
             .map { "Convert to another string" }
             .doOnError { Log.d("LOG", "it is an error") }
-            .zip(
+            .fold(
                 success = {
                     State.Success(it)
                 },
@@ -127,10 +127,10 @@ repository.getData(data)
       Log.d("LOG", "Let's combine results ${success.toString() + error.toString()}")
     }
 ```
-- **zip** - Handle the Reaction result with on success and on error actions and transform them to the new object
+- **fold** - Handle the Reaction result with on success and on error actions and transform them to the new object
 ```kotlin
 repository.getData()
-    .zip(
+    .fold(
         success = { State.Success(it) },
         error = { State.Error }
     )

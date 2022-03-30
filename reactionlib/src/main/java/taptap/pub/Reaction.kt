@@ -103,6 +103,7 @@ inline fun <T> Reaction<T>.takeOrReturn(f: (Exception) -> Nothing): T = when (th
     is Reaction.Success -> this.data
     is Reaction.Error -> {
         f(this.exception)
+        //throw IllegalStateException("You must write 'return' in the error lambda")
     }
 }
 
@@ -126,7 +127,7 @@ inline fun <T> Reaction<T>.takeOrDefault(default: () -> T): T = when (this) {
  * val data = repository.getData()
  *     .takeOrNull()
  */
-inline fun <T> Reaction<T>.takeOrNull(): T? = when (this) {
+fun <T> Reaction<T>.takeOrNull(): T? = when (this) {
     is Reaction.Success -> this.data
     is Reaction.Error -> null
 }
@@ -269,13 +270,13 @@ inline fun <T> Reaction<T>.handle(success: (T) -> Unit, error: (Exception) -> Un
  * Handle the Reaction result with on success and on error actions and transform them to the new object
  * ```kotlin
  * repository.getData()
- *     .zip(
+ *     .fold(
  *         success = { State.Success(it) },
  *         error = { State.Error }
  *     )
  * ```
  */
-inline fun <T, R> Reaction<T>.zip(success: (T) -> R, error: (Exception) -> R): R =
+inline fun <T, R> Reaction<T>.fold(success: (T) -> R, error: (Exception) -> R): R =
     when (this) {
         is Reaction.Success -> success(this.data)
         is Reaction.Error -> error(this.exception)
