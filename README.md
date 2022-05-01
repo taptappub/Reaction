@@ -68,6 +68,10 @@ fun getAnotherData() {
 ```kotlin
 Reaction.on { "something" }
 ```
+- **onCondition** - Construct a Reaction from condition
+```kotlin
+Reaction.onCondition { it == "what you want" }
+```
  - **tryReaction** - Construct a safe Reaction from Reaction 
 ```kotlin
 Reaction.tryReaction { Reaction.on { "something" } }
@@ -77,7 +81,7 @@ Reaction.tryReaction { Reaction.on { "something" } }
 repository.getData()
     .map { "Convert to another string" }
 ```
-- **map** - Transform the result with success and error data by applying a function to it
+- **mapReaction** - Transform the result with success and error data by applying a function to it
 ```kotlin
 repository.getData()
     .mapReaction { s, e -> "Convert to another string: $s + $e" }
@@ -155,10 +159,15 @@ val data = repository.getData()
         "default data"
     }
 ```
-- **takeOrNull** - Unwrap and receive the success result data or receive *null* in error case
+- **isSuccess** - Check is result success
 ```kotlin
-val data = repository.getData()
-    .takeOrNull()
+val isSuccess = repository.getData()
+   .isSuccess()
+```
+- **isError** - Check is result error
+```kotlin
+val isError = repository.getData()
+   .isError()
 ```
 - **resumeWithReactionSuccess** - Coroutine Continuation for success callback
 ```kotlin

@@ -49,6 +49,27 @@ sealed class Reaction<out T> {
 
     companion object {
         /**
+         * Construct a Reaction from condition
+         * ```kotlin
+         * Reaction.onCondition { it == "what you want" }
+         * ```
+         */
+        inline fun <T> onCondition(f: () -> Boolean): Reaction<Unit> {
+            return try {
+                if (f()) {
+                    Success(Unit)
+                } else {
+                    Error(IllegalStateException("Illegal state"))
+                }
+            } catch (ex: Exception) {
+                if (ex is CancellationException) {
+                    throw ex
+                }
+                Error(ex)
+            }
+        }
+
+        /**
          * Construct a safe Reaction from statement
          * ```kotlin
          * Reaction.on { "something" }
@@ -350,6 +371,24 @@ inline fun <T> Reaction<T>.check(
     }
     Reaction.Error(e)
 }
+
+/**
+ * Check is result success
+ * ```kotlin
+ * repository.getData()
+ *     .isSuccess() == true
+ * ```
+ */
+fun <T> Reaction<T>.isSuccess(): Boolean = this is Reaction.Success
+
+/**
+ * Check is result error
+ * ```kotlin
+ * repository.getData()
+ *     .isSuccess() == true
+ * ```
+ */
+fun <T> Reaction<T>.isError(): Boolean = this is Reaction.Error
 
 //-------------------------Coroutine Continuation-------------------------
 
