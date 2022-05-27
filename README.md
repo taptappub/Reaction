@@ -159,6 +159,11 @@ val data = repository.getData()
         "default data"
     }
 ```
+- **takeOrThrow** - Unwrap and receive the success result data or throw exception from Error in error case
+```kotlin
+val data = repository.getData()
+    .takeOrThrow()
+```
 - **isSuccess** - Check is result success
 ```kotlin
 val isSuccess = repository.getData()

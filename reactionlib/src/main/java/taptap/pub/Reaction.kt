@@ -154,6 +154,17 @@ fun <T> Reaction<T>.takeOrNull(): T? = when (this) {
 }
 
 /**
+ * Unwrap and receive the success result data or throw exception from Error in error case
+ * ```kotlin
+ * val data = repository.getData()
+ *     .takeOrThrow()
+ */
+fun <T> Reaction<T>.takeOrThrow(): T = when (this) {
+    is Reaction.Success -> this.data
+    is Reaction.Error -> throw this.exception
+}
+
+/**
  * Transform the success result by applying a function to it to another Reaction
  * ```kotlin
  * repository.getData()
